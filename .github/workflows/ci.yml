@@ -1,0 +1,122 @@
+name: CI/CD LaTeX
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*.*.*'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Injection de la version dynamique dans les sources
+        run: |
+          # 1. Extraction de la version depuis le tag GitHub (ex: v1.1.0 -> 1.1.0)
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            RAW_VERSION="${{ github.ref_name }}"
+            NUM_VERSION="${RAW_VERSION#v}"
+          else
+            RAW_VERSION="v-dev"
+            NUM_VERSION="dev"
+          fi
+          # 2. Date au format YYYY/MM/DD attendu par LaTeX
+          DATE_YYYY_MM_DD=$(date +'%Y/%m/%d')
+          
+          # 3. Remplacement dans la classe (Recherche le format [YYYY/MM/DD vX.Y.Z )
+          sed -i -E "s/\[[0-9]{4}\/[0-9]{2}\/[0-9]{2} [^ ]+ /\\[$DATE_YYYY_MM_DD $RAW_VERSION /" tex/ficheseance.cls
+          
+          # 4. Remplacement dans les documentations (Remplace la valeur de \pkgversion)
+          sed -i -E "s/\\\\newcommand\{\\\\pkgversion\}\{[^}]+\}/\\\\newcommand{\\\\pkgversion}{$NUM_VERSION}/" doc/archery-trainer-sets-fr.tex
+          sed -i -E "s/\\\\newcommand\{\\\\pkgversion\}\{[^}]+\}/\\\\newcommand{\\\\pkgversion}{$NUM_VERSION}/" doc/archery-trainer-sets-en.tex
+
+      - name: Compilation du fichier de test LaTeX
+        uses: xu-cheng/latex-action@v3
+        with:
+          working_directory: tests
+          root_file: "*.tex"
+          args: "-lualatex -interaction=nonstopmode -file-line-error -synctex=1"
+
+      - name: Compilation de la documentation LaTeX
+        uses: xu-cheng/latex-action@v3
+        with:
+          working_directory: doc
+          root_file: "*.tex"
+          args: "-lualatex -interaction=nonstopmode -file-line-error -synctex=1"
+
+      - name: Upload du PDF généré pour les tests
+        uses: actions/upload-artifact@v4
+        with:
+          name: ficheseance-exemple
+          path: tests/*.pdf
+          retention-days: 7
+
+      - name: Upload du PDF généré pour la doc
+        uses: actions/upload-artifact@v4
+        with:
+          name: archery-doc
+          path: doc/*.pdf
+          retention-days: 7
+
+  release:
+    needs: build-and-test
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Injection de la version dynamique dans les sources
+        run: python scripts/inject_version.py
+
+      - name: Récupération des PDF (tests)
+        uses: actions/download-artifact@v4
+        with:
+          name: ficheseance-exemple
+          path: output/tests/
+
+      - name: Récupération des PDF (doc)
+        uses: actions/download-artifact@v4
+        with:
+          name: archery-doc
+          path: output/doc/
+
+      - name: Création de la Release GitHub
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            output/tests/*.pdf
+            output/doc/*.pdf
+          generate_release_notes: true
+
+      - name: Préparation de l'archive CTAN
+        run: |
+          mkdir archery-trainer-sets
+          cp README.md archery-trainer-sets/
+          cp tex/*.cls archery-trainer-sets/
+          cp doc/*.tex archery-trainer-sets/
+          cp output/doc/*.pdf archery-trainer-sets/ 2>/dev/null || true
+          mkdir archery-trainer-sets/examples
+          cp tests/*.tex archery-trainer-sets/examples/
+          cp output/tests/*.pdf archery-trainer-sets/examples/ 2>/dev/null || true
+          zip -r archery-trainer-sets.zip archery-trainer-sets
+
+      - name: Upload vers CTAN (via API)
+        run: |
+          curl -X POST https://ctan.org/submit \
+            -F "pkg=archery-trainer-sets" \
+            -F "uploader=deogracia" \
+            -F "email=${{ secrets.CTAN_EMAIL }}" \
+            -F "version=${{ github.ref_name }}" \
+            -F "summary=LaTeX classes and packages for archery trainers" \
+            -F "license=lppl1.3c" \
+            -F "file=@archery-trainer-sets.zip"

@@ -1,0 +1,110 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage{iftex}
+\iftutex
+  % If compiling with LuaLaTeX or XeLaTeX
+  \usepackage{fontspec}
+\else
+  % If compiling with pdfLaTeX
+  \usepackage[utf8]{inputenc}
+  \usepackage[T1]{fontenc}
+\fi
+\usepackage[english]{babel}
+\usepackage{geometry}
+\geometry{hmargin=2.5cm, vmargin=2.5cm}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+
+\lstset{
+  language=[LaTeX]TeX,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue},
+  commentstyle=\color{gray},
+  frame=single,
+  backgroundcolor=\color{black!5},
+  breaklines=true,
+  postbreak=\mbox{\textcolor{gray}{$\hookrightarrow$}\space}
+}
+
+\title{\textbf{The \texttt{archery-trainer-sets} Package}}
+\author{deogracia}
+\newcommand{\pkgversion}{1.1.0-dev}
+\date{\today \quad -- \quad Version \pkgversion}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The \texttt{archery-trainer-sets} package provides a set of \LaTeX{} classes and packages for archery trainers. It aims to standardize and facilitate the creation of documents useful for preparing and following training sessions.
+\end{abstract}
+
+\tableofcontents
+\vspace{1cm}
+
+\section{Introduction}
+This package was designed to meet the specific needs of archery trainers (initiation, progression, competition). Currently, it includes the \texttt{ficheseance} class, which allows generating clear, structured, and print-ready session sheets (Landscape format, 7 columns).
+
+The package is distributed under the \textbf{LPPL 1.3c} license.
+
+\section{The \texttt{ficheseance} class}
+
+\subsection{Loading the class}
+The \texttt{ficheseance} class is based on the standard \texttt{article} class. It automatically sets the document to A4 size, landscape orientation, with a 10pt font.
+To use it, simply declare:
+\begin{lstlisting}
+\documentclass{ficheseance}
+\end{lstlisting}
+
+The class natively supports French and English via the \texttt{translations} package. Just load \texttt{babel} or \texttt{polyglossia} with your desired language, and the headers will translate automatically.
+
+\subsection{Defining metadata}
+Before the \verb|\begin{document}| or right after, you must define the information of your session using the following commands:
+\begin{itemize}
+    \item \verb|\numfiche{...}|: Number of the sheet or session.
+    \item \verb|\datefiche{...}|: Date of the session.
+    \item \verb|\archer{...}|: Name of the archer or group.
+    \item \verb|\theme{...}|: General theme of the session.
+    \item \verb|\objectifseance{...}|: Main objective of the session.
+\end{itemize}
+
+\subsection{Header generation}
+Once the information is defined, use the \verb|\makeficheheader| command to display the summary box at the top of the first page.
+
+\subsection{The session table}
+The core of the sheet is the \texttt{tableauSeance} environment. It deploys a multi-page table (thanks to \texttt{xltabular}) consisting of 7 columns specific to sports training:
+\begin{enumerate}
+    \item \textbf{Goal}
+    \item \textbf{Time}
+    \item \textbf{Situations}
+    \item \textbf{Tools}
+    \item \textbf{Instructions}
+    \item \textbf{Success criteria}
+    \item \textbf{Evaluations}
+\end{enumerate}
+
+To insert a row (a situation or exercise) into the table, use the \verb|\ligneSeance| command, which takes exactly 7 arguments:
+\begin{lstlisting}
+\begin{tableauSeance}
+    \ligneSeance
+        {Warm-up} % Goal
+        {15 min} % Time
+        {Joint and muscle awakening} % Situation
+        {Elastic bands} % Tools
+        {Slow and controlled movements} % Instructions
+        {No pain} % Criteria
+        {OK} % Evaluation
+\end{tableauSeance}
+\end{lstlisting}
+
+\section{Support and Contribution}
+The source code and full examples are available on the GitHub repository:\\ \url{https://github.com/deogracia/archery-trainer-sets}.\\
+Contributions as \textit{Pull Requests} are welcome.
+
+\end{document}

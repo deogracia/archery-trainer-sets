@@ -1,0 +1,110 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage{iftex}
+\iftutex
+  % Si compilation avec LuaLaTeX ou XeLaTeX
+  \usepackage{fontspec}
+\else
+  % Si compilation avec pdfLaTeX
+  \usepackage[utf8]{inputenc}
+  \usepackage[T1]{fontenc}
+\fi
+\usepackage[french]{babel}
+\usepackage{geometry}
+\geometry{hmargin=2.5cm, vmargin=2.5cm}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+
+\lstset{
+  language=[LaTeX]TeX,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue},
+  commentstyle=\color{gray},
+  frame=single,
+  backgroundcolor=\color{black!5},
+  breaklines=true,
+  postbreak=\mbox{\textcolor{gray}{$\hookrightarrow$}\space}
+}
+
+\title{\textbf{Le Paquet \texttt{archery-trainer-sets}}}
+\author{deogracia}
+\newcommand{\pkgversion}{1.1.0-dev}
+\date{\today \quad -- \quad Version \pkgversion}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Le paquet \texttt{archery-trainer-sets} regroupe un ensemble de classes et de paquets \LaTeX{} destinés aux entraîneurs de tir à l'arc. Il permet de standardiser et de faciliter la création de documents utiles à la préparation et au suivi des séances d'entraînement.
+\end{abstract}
+
+\tableofcontents
+\vspace{1cm}
+
+\section{Introduction}
+Ce paquet a été conçu pour répondre aux besoins spécifiques des entraîneurs de tir à l'arc (initiation, progression, compétition). Il inclut pour le moment la classe \texttt{ficheseance}, qui permet de générer des fiches de séance claires, structurées et prêtes à être imprimées (format Paysage, 7 colonnes).
+
+Le paquet est distribué sous licence \textbf{LPPL 1.3c}.
+
+\section{La classe \texttt{ficheseance}}
+
+\subsection{Chargement de la classe}
+La classe \texttt{ficheseance} est basée sur la classe standard \texttt{article}. Elle configure automatiquement le document en format A4, orientation paysage, avec une police de 10pt. 
+Pour l'utiliser, il suffit de déclarer :
+\begin{lstlisting}
+\documentclass{ficheseance}
+\end{lstlisting}
+
+La classe gère nativement le français et l'anglais via le paquet \texttt{translations}. Il suffit de charger \texttt{babel} ou \texttt{polyglossia} avec la langue de votre choix pour que les en-têtes se traduisent automatiquement.
+
+\subsection{Définition des métadonnées}
+Avant le \verb|\begin{document}| ou juste après, vous devez définir les informations de votre séance à l'aide des commandes suivantes :
+\begin{itemize}
+    \item \verb|\numfiche{...}| : Numéro de la fiche ou de la séance.
+    \item \verb|\datefiche{...}| : Date de la séance.
+    \item \verb|\archer{...}| : Nom de l'archer ou du groupe.
+    \item \verb|\theme{...}| : Thème général de la séance.
+    \item \verb|\objectifseance{...}| : Objectif principal de la séance.
+\end{itemize}
+
+\subsection{Génération de l'en-tête}
+Une fois les informations définies, utilisez la commande \verb|\makeficheheader| pour afficher le cartouche récapitulatif en haut de la première page.
+
+\subsection{Le tableau de séance}
+Le cœur de la fiche est l'environnement \texttt{tableauSeance}. Il déploie un tableau multipage (grâce à \texttt{xltabular}) composé de 7 colonnes spécifiques à l'entraînement sportif :
+\begin{enumerate}
+    \item \textbf{Objectif}
+    \item \textbf{Temps}
+    \item \textbf{Situations}
+    \item \textbf{Outils}
+    \item \textbf{Consignes}
+    \item \textbf{Critères de réussite}
+    \item \textbf{Évaluations}
+\end{enumerate}
+
+Pour insérer une ligne (une situation ou un exercice) dans le tableau, utilisez la commande \verb|\ligneSeance| qui prend exactement 7 arguments :
+\begin{lstlisting}
+\begin{tableauSeance}
+    \ligneSeance
+        {Échauffement} % Objectif
+        {15 min} % Temps
+        {Réveils articulaires et musculaires} % Situation
+        {Élastiques} % Outils
+        {Mouvements lents et contrôlés} % Consignes
+        {Pas de douleur} % Critères
+        {OK} % Évaluation
+\end{tableauSeance}
+\end{lstlisting}
+
+\section{Support et Contribution}
+Le code source et les exemples complets sont disponibles sur le dépôt GitHub :\\ \url{https://github.com/deogracia/archery-trainer-sets}.\\
+Les contributions sous forme de \textit{Pull Requests} sont les bienvenues.
+
+\end{document}

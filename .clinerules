@@ -1,0 +1,9 @@
+À chaque modification architecturale, ajout de fonctionnalité majeure ou changement de configuration CI/CD, tu DOIS impérativement mettre à jour le fichier \"doc/journal-de-bord.md\".
+
+Les ajouts dans ce journal doivent respecter le format existant : une nouvelle section (##) avec un tableau contenant les colonnes 'Élément', 'Décision / Configuration', et 'Justification / Explication technique'.
+
+Chaque étape de modification doit être suivie d'un commit Git respectant la norme Conventional Commits (feat, fix, docs, ci, etc.).
+
+Si le code source complet d'un fichier est recopié dans le journal de bord (ex: section 5), tu DOIS impérativement remplacer cet extrait par le nouveau code intégral à chaque modification du fichier source pour éviter toute désynchronisation.
+
+Sous Windows (PowerShell), n'utilise JAMAIS les commandes Add-Content ou les scripts en ligne de commande pour modifier du Markdown complexe avec des backticks, car le shell les interprète mal. Utilise EXCLUSIVEMENT l'outil d'édition de fichiers (Editor tool) pour manipuler le code ou le Markdown.

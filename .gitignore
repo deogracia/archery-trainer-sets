@@ -1,0 +1,29 @@
+# Fichiers intermédiaires LaTeX
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.glg
+*.glo
+*.gls
+*.idx
+*.ilg
+*.ind
+*.ist
+*.lof
+*.log
+*.lot
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.xdv
+
+# Fichiers de configuration spécifiques à TeXstudio
+*.cwl
+
+# (Optionnel) Fichiers PDF produits par la compilation
+# Retirez la ligne suivante si vous souhaitez versionner le PDF final de démonstration
+*.pdf
