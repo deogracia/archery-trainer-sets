@@ -18,24 +18,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Injection de la version dynamique dans les sources
-        run: |
-          # 1. Extraction de la version depuis le tag GitHub (ex: v1.1.0 -> 1.1.0)
-          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            RAW_VERSION="${{ github.ref_name }}"
-            NUM_VERSION="${RAW_VERSION#v}"
-          else
-            RAW_VERSION="v-dev"
-            NUM_VERSION="dev"
-          fi
-          # 2. Date au format YYYY/MM/DD attendu par LaTeX
-          DATE_YYYY_MM_DD=$(date +'%Y/%m/%d')
-          
-          # 3. Remplacement dans la classe (Recherche le format [YYYY/MM/DD vX.Y.Z )
-          sed -i -E "s/\[[0-9]{4}\/[0-9]{2}\/[0-9]{2} [^ ]+ /\\[$DATE_YYYY_MM_DD $RAW_VERSION /" tex/ficheseance.cls
-          
-          # 4. Remplacement dans les documentations (Remplace la valeur de \pkgversion)
-          sed -i -E "s/\\\\newcommand\{\\\\pkgversion\}\{[^}]+\}/\\\\newcommand{\\\\pkgversion}{$NUM_VERSION}/" doc/archery-trainer-sets-fr.tex
-          sed -i -E "s/\\\\newcommand\{\\\\pkgversion\}\{[^}]+\}/\\\\newcommand{\\\\pkgversion}{$NUM_VERSION}/" doc/archery-trainer-sets-en.tex
+        run: python scripts/inject_version.py
 
       - name: Compilation du fichier de test LaTeX
         uses: xu-cheng/latex-action@v3
