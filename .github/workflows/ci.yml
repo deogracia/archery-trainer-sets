@@ -93,11 +93,32 @@ jobs:
           cp output/tests/*.pdf archery-trainer-sets/examples/ 2>/dev/null || true
           zip -r archery-trainer-sets.zip archery-trainer-sets
 
-      - name: Upload vers CTAN (via API)
+      - name: Validation du paquet CTAN
         run: |
-          curl -X POST https://ctan.org/submit \
+          curl -s -X POST https://ctan.org/submit/validate \
             -F "pkg=archery-trainer-sets" \
             -F "uploader=deogracia" \
+            -F "author=deogracia" \
+            -F "email=${{ secrets.CTAN_EMAIL }}" \
+            -F "version=${{ github.ref_name }}" \
+            -F "summary=LaTeX classes and packages for archery trainers" \
+            -F "license=lppl1.3c" \
+            -F "file=@archery-trainer-sets.zip" > validation.json
+          
+          echo "Résultat de la validation CTAN :"
+          cat validation.json
+          
+          if grep -q '"ERROR"' validation.json; then
+            echo "Validation CTAN échouée. Veuillez vérifier les erreurs ci-dessus."
+            exit 1
+          fi
+
+      - name: Upload vers CTAN (via API)
+        run: |
+          curl -s -X POST https://ctan.org/submit/upload \
+            -F "pkg=archery-trainer-sets" \
+            -F "uploader=deogracia" \
+            -F "author=deogracia" \
             -F "email=${{ secrets.CTAN_EMAIL }}" \
             -F "version=${{ github.ref_name }}" \
             -F "summary=LaTeX classes and packages for archery trainers" \
