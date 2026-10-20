@@ -7,3 +7,6 @@ Chaque étape de modification doit être suivie d'un commit Git respectant la no
 Si le code source complet d'un fichier est recopié dans le journal de bord (ex: section 5), tu DOIS impérativement remplacer cet extrait par le nouveau code intégral à chaque modification du fichier source pour éviter toute désynchronisation.
 
 Sous Windows (PowerShell), n'utilise JAMAIS les commandes Add-Content ou les scripts en ligne de commande pour modifier du Markdown complexe avec des backticks, car le shell les interprète mal. Utilise EXCLUSIVEMENT l'outil d'édition de fichiers (Editor tool) pour manipuler le code ou le Markdown.
+
+
+Pour garantir la fiabilité de l'Intégration Continue (CI/CD), tu DOIS impérativement utiliser le moteur de compilation `lualatex` (et non `pdflatex`) pour tous tes tests de compilation locaux.

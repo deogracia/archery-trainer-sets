@@ -167,16 +167,26 @@
 	\vspace{0.5cm} % Espace entre l'en-tête et le grand tableau
 }
 
-% 11. Compatibilité spécifique avec babel-french pour les tableaux
+% 11. Gestion du français par défaut (si aucun gestionnaire de langue n'est chargé)
 \AtBeginDocument{%
 	\@ifpackageloaded{babel}{%
+		% Si babel est chargé, on s'assure de la compatibilité avec nos tableaux
 		\makeatletter
 		\@ifundefined{frenchbsetup}{}{%
 			% Force babel-french à respecter les réglages de listes d'enumitem et non les siens
 			\frenchbsetup{StandardItemizeEnv=true}
 		}%
 		\makeatother
-	}{}%
+	}{%
+		% Si ni babel ni polyglossia ne sont chargés, le système est en "english" par défaut.
+		% Le package translations se cale sur \@trnslt@language ou \languagename.
+		\@ifpackageloaded{polyglossia}{}{%
+			\makeatletter
+			\def\languagename{french}%
+			\def\@trnslt@language{french}%
+			\makeatother
+		}
+	}%
 }
 
 % 12. Configuration des En-têtes et Pieds de page (fancyhdr)
@@ -198,11 +208,91 @@
 	\fancyfoot[C]{}
 	\fancyfoot[R]{\GetTranslation{Fiche-Page} \thepage{} \GetTranslation{Fiche-Sur} \pageref{LastPage}}
 }
-
-% Application du style standard par défaut pour tout le document
-\pagestyle{fancy}
-
 % Commande à 7 arguments pour ajouter une situation/exercice
 \newcommand{\ligneSeance}[7]{%
 	#1 & #2 & #3 & #4 & #5 & #6 & #7 \\ \hline
+}
+
+
+
+% 14. Gestion du Catalogue de situations (Clés / Valeurs)
+\RequirePackage{xkeyval}
+
+% Macro de secours pour initialiser/vider les variables
+\newcommand{\@initCurVars}{%
+	\gdef\curObjectif{}%
+	\gdef\curTemps{}%
+	\gdef\curSituations{}%
+	\gdef\curOutils{}%
+	\gdef\curConsignes{}%
+	\gdef\curCriteres{}%
+	\gdef\curEvaluations{}%
+}
+
+% Définition des clés pour stocker (catDef)
+\define@key{catDef}{objectif}{\global\long\expandafter\def\csname cat@\currentCatID @objectif\endcsname{#1}}
+\define@key{catDef}{temps}{\global\long\expandafter\def\csname cat@\currentCatID @temps\endcsname{#1}}
+\define@key{catDef}{situations}{\global\long\expandafter\def\csname cat@\currentCatID @situations\endcsname{#1}}
+\define@key{catDef}{outils}{\global\long\expandafter\def\csname cat@\currentCatID @outils\endcsname{#1}}
+\define@key{catDef}{consignes}{\global\long\expandafter\def\csname cat@\currentCatID @consignes\endcsname{#1}}
+\define@key{catDef}{criteres}{\global\long\expandafter\def\csname cat@\currentCatID @criteres\endcsname{#1}}
+\define@key{catDef}{evaluations}{\global\long\expandafter\def\csname cat@\currentCatID @evaluations\endcsname{#1}}
+
+% Définition des clés pour utiliser/surcharger (catUse)
+\define@key{catUse}{objectif}{\long\gdef\curObjectif{#1}}
+\define@key{catUse}{temps}{\long\gdef\curTemps{#1}}
+\define@key{catUse}{situations}{\long\gdef\curSituations{#1}}
+\define@key{catUse}{outils}{\long\gdef\curOutils{#1}}
+\define@key{catUse}{consignes}{\long\gdef\curConsignes{#1}}
+\define@key{catUse}{criteres}{\long\gdef\curCriteres{#1}}
+\define@key{catUse}{evaluations}{\long\gdef\curEvaluations{#1}}
+
+% Commande pour stocker une situation en mémoire
+\newcommand{\DefinirSituation}[2]{%
+	% #1 = Identifiant unique de la situation
+	% #2 = Liste des paires clé=valeur
+	
+	% On initialise tout à vide pour cet ID
+	\global\long\expandafter\def\csname cat@#1@objectif\endcsname{}%
+	\global\long\expandafter\def\csname cat@#1@temps\endcsname{}%
+	\global\long\expandafter\def\csname cat@#1@situations\endcsname{}%
+	\global\long\expandafter\def\csname cat@#1@outils\endcsname{}%
+	\global\long\expandafter\def\csname cat@#1@consignes\endcsname{}%
+	\global\long\expandafter\def\csname cat@#1@criteres\endcsname{}%
+	\global\long\expandafter\def\csname cat@#1@evaluations\endcsname{}%
+	
+	% On définit l'ID courant pour que les clés sachent où écrire
+	\def\currentCatID{#1}%
+	
+	% On parse les clés et on injecte dans la mémoire (l'astérisque ignore silencieusement les clés inconnues)
+	\setkeys*{catDef}{#2}%
+}
+
+% Commande pour utiliser une situation du catalogue dans le tableau
+\newcommand{\ligneDepuisCatalogue}[2][]{%
+	% #1 = Surcharges (optionnelles) clé=valeur
+	% #2 = Identifiant de la situation à charger
+	
+	\@initCurVars
+	
+	% 1. Restaurer depuis le catalogue (si défini)
+	\@ifundefined{cat@#2@objectif}{}{\expandafter\global\expandafter\let\expandafter\curObjectif\csname cat@#2@objectif\endcsname}%
+	\@ifundefined{cat@#2@temps}{}{\expandafter\global\expandafter\let\expandafter\curTemps\csname cat@#2@temps\endcsname}%
+	\@ifundefined{cat@#2@situations}{}{\expandafter\global\expandafter\let\expandafter\curSituations\csname cat@#2@situations\endcsname}%
+	\@ifundefined{cat@#2@outils}{}{\expandafter\global\expandafter\let\expandafter\curOutils\csname cat@#2@outils\endcsname}%
+	\@ifundefined{cat@#2@consignes}{}{\expandafter\global\expandafter\let\expandafter\curConsignes\csname cat@#2@consignes\endcsname}%
+	\@ifundefined{cat@#2@criteres}{}{\expandafter\global\expandafter\let\expandafter\curCriteres\csname cat@#2@criteres\endcsname}%
+	\@ifundefined{cat@#2@evaluations}{}{\expandafter\global\expandafter\let\expandafter\curEvaluations\csname cat@#2@evaluations\endcsname}%
+	
+	% 2. Appliquer les surcharges de l'utilisateur (si fournies, * ignore l'inconnu)
+	\setkeys*{catUse}{#1}%
+	
+	% 3. Afficher la ligne (Appel direct au tableau)
+	\curObjectif\par\vspace{4pt}\hfill\textcolor{gray}{\textsl{\tiny [Réf: #2]}} & 
+	\curTemps & 
+	\curSituations & 
+	\curOutils & 
+	\curConsignes & 
+	\curCriteres & 
+	\curEvaluations \\ \hline
 }

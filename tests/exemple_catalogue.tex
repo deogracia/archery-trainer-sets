@@ -1,0 +1,76 @@
+\documentclass{../tex/ficheseance}
+% ON TESTE ICI SANS LE \usepackage{babel} POUR VERIFIER LE FALLBACK FRANCAIS
+
+% --- INCLUSION DU CATALOGUE (Optionnel, peut être dans un fichier à part) ---
+\DefinirSituation{theme01-obj03}{
+	objectif = {Apprendre à viser avec un viseur},
+	consignes = {
+		\begin{itemize}
+			\item Regarder la cible au travers du viseur
+			\item Garder les deux yeux ouverts
+			\item Ne pas crisper la main d'arc
+		\end{itemize}
+	},
+	criteres = {Groupement dans le jaune à 10m}
+}
+
+\DefinirSituation{echauffement}{
+	objectif = {Échauffement articulaire et musculaire},
+	temps = {15 min},
+	situations = {En cercle sans matériel},
+	consignes = {Réveil articulaire complet (nuque, épaules, poignets)}
+}
+% ----------------------------------------------------------------------------
+
+\begin{document}
+% Informations de la séance
+\numfiche{3}
+\datefiche{23 Octobre 2026}
+\theme{Visée et Continuité}
+\objectifseance{Intégrer l'usage du viseur pour les débutants.}
+\archer{Groupe Initiation}
+
+% Génération de l'en-tête
+\makeficheheader
+
+% Création du tableau de séance
+\begin{tableauSeance}
+
+	% Exemple 1 : Utilisation directe d'une situation du catalogue sans modification
+	\ligneDepuisCatalogue{echauffement}
+	
+	% Exemple 2 : Surcharge de valeurs (on ajoute ce qui manque pour cette séance précise)
+	\ligneDepuisCatalogue[
+		temps = {30 min},
+		situations = {Tir sur blason de 80cm à 10m},
+		outils = {Arc avec viseur réglé},
+		evaluations = {Comptage des flèches dans le jaune}
+	]{theme01-obj03}
+	
+	% Exemple 3 : Surcharge pour modifier une valeur existante du catalogue (on change les consignes pour CE groupe)
+	\ligneDepuisCatalogue[
+		temps = {15 min},
+		situations = {Tir de confirmation},
+		consignes = {\textbf{Rappel important :} bien insister sur le placement des doigts !} % Ceci écrase le catalogue
+	]{theme01-obj03}
+
+	% Exemple 4 : Utilisation de la commande manuelle standard (hors catalogue)
+	\ligneSeance{
+		Retour au calme
+	}{
+		10 min
+	}{
+		Sur le pas de tir
+	}{
+		Aucun
+	}{
+		Rangement du matériel, étirements légers
+	}{
+		Le matériel est rangé correctement
+	}{
+		Feedback oral
+	}
+
+\end{tableauSeance}
+
+\end{document}
