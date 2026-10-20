@@ -316,3 +316,9 @@
 | **Mise en dormance de la publication CTAN** | Mise en commentaire des étapes `curl` dans le workflow `ci.yml`. | Le paquet répond à un besoin très ciblé (entraîneurs de tir à l'arc francophones pour l'instant) et n'est pas forcément pertinent à distribuer globalement sur tous les miroirs CTAN du monde dans l'immédiat. Le code reste présent mais inactif en cas de besoin futur. |
 | **Enrichissement de la Release GitHub** | Ajout de l'archive complète `archery-trainer-sets.zip` dans l'action `action-gh-release`. | Permet de pallier l'absence sur le CTAN. Les utilisateurs peuvent télécharger un paquet complet (sources + doc + exemples) directement depuis les releases GitHub. |
 | **Documentation d'installation manuelle** | Ajout d'une section au `README.md` détaillant l'installation sous MiKTeX, TeX Live et MacTeX. | Comme les utilisateurs ne peuvent plus utiliser leur gestionnaire de paquets par défaut (faute de publication CTAN), la documentation centralise la méthode d'installation manuelle d'un paquet local pour les OS majeurs (Windows, Linux, macOS) et la mise à jour de la FNDB. |
+
+## 12. Corrections / Ajustements Divers
+
+| Élément | Décision / Configuration | Justification / Explication technique |
+| :--- | :--- | :--- |
+| **Comportement par défaut des traductions** | Forcer `\languagename` et `\@trnslt@language` sur `french` dans la classe. | LaTeX définit l'anglais par défaut. Sans le chargement de paquets de langue (ex: `babel`, `polyglossia`), le paquet `translations` s'attendait donc à de l'anglais et occultait les `fallbacks` (mots de secours) définis en français dans la classe. Cette astuce force l'usage du dictionnaire français si aucun paquet de langue n'est fourni par l'utilisateur. |

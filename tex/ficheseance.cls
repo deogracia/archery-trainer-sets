@@ -167,16 +167,26 @@
 	\vspace{0.5cm} % Espace entre l'en-tête et le grand tableau
 }
 
-% 11. Compatibilité spécifique avec babel-french pour les tableaux
+% 11. Gestion du français par défaut (si aucun gestionnaire de langue n'est chargé)
 \AtBeginDocument{%
 	\@ifpackageloaded{babel}{%
+		% Si babel est chargé, on s'assure de la compatibilité avec nos tableaux
 		\makeatletter
 		\@ifundefined{frenchbsetup}{}{%
 			% Force babel-french à respecter les réglages de listes d'enumitem et non les siens
 			\frenchbsetup{StandardItemizeEnv=true}
 		}%
 		\makeatother
-	}{}%
+	}{%
+		% Si ni babel ni polyglossia ne sont chargés, le système est en "english" par défaut.
+		% Le package translations se cale sur \@trnslt@language ou \languagename.
+		\@ifpackageloaded{polyglossia}{}{%
+			\makeatletter
+			\def\languagename{french}%
+			\def\@trnslt@language{french}%
+			\makeatother
+		}
+	}%
 }
 
 % 12. Configuration des En-têtes et Pieds de page (fancyhdr)
