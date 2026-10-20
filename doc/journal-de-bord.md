@@ -308,3 +308,11 @@
 
 | **Publication CTAN automatisée** | Requête `curl` vers `https://ctan.org/submit` | L'upload vers le CTAN s'effectue automatiquement via la CI/CD lors de la création d'une release GitHub (tag `v*.*.*`). Utilisation d'un bundle complet zippé avec les sources, la documentation et les exemples. |
 | **Sécurité des données** | GitHub Secrets (`CTAN_EMAIL`) | L'email requis par l'API CTAN est stocké de manière sécurisée dans les secrets GitHub pour ne pas être exposé dans le code source `ci.yml`. |
+
+## 11. Évolution CI/CD : Mise en dormance CTAN et Publication GitHub
+
+| Élément | Décision / Configuration | Justification / Explication technique |
+| :--- | :--- | :--- |
+| **Mise en dormance de la publication CTAN** | Mise en commentaire des étapes `curl` dans le workflow `ci.yml`. | Le paquet répond à un besoin très ciblé (entraîneurs de tir à l'arc francophones pour l'instant) et n'est pas forcément pertinent à distribuer globalement sur tous les miroirs CTAN du monde dans l'immédiat. Le code reste présent mais inactif en cas de besoin futur. |
+| **Enrichissement de la Release GitHub** | Ajout de l'archive complète `archery-trainer-sets.zip` dans l'action `action-gh-release`. | Permet de pallier l'absence sur le CTAN. Les utilisateurs peuvent télécharger un paquet complet (sources + doc + exemples) directement depuis les releases GitHub. |
+| **Documentation d'installation manuelle** | Ajout d'une section au `README.md` détaillant l'installation sous MiKTeX, TeX Live et MacTeX. | Comme les utilisateurs ne peuvent plus utiliser leur gestionnaire de paquets par défaut (faute de publication CTAN), la documentation centralise la méthode d'installation manuelle d'un paquet local pour les OS majeurs (Windows, Linux, macOS) et la mise à jour de la FNDB. |
